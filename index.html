@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sauron</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#141518">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sauron">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#141518; --panel:#1b1c20; --panel2:#212227; --raise:#2a2b31; --line:#2b2c32; --line2:#34353c;
+  --fg:#ececf0; --dim:#9c9ca6; --faint:#62626c; --accent:#4c8dff;
+  --temp:#ff5a52; --tempBody:#2a1d20; --audition:#f5c542; --auditionBody:#2d2914;
+  --done:#3fd07a; --doneBody:#14301f; --sync:#4c8dff; --syncBody:#14243d; --marker:#f5c542; --de:#3fb8a8;
+  --ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 var(--ui);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;min-height:100vh}
+button{font:inherit;color:inherit;background:var(--raise);border:1px solid var(--line2);border-radius:8px;height:32px;padding:0 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:1100px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) calc(16px + var(--sr)) calc(env(safe-area-inset-bottom,0px) + 40px) calc(16px + var(--sl))}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.top img{width:40px;height:40px;border-radius:10px;flex:none}
+.top .t{min-width:0;flex:1}
+.top h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{color:var(--dim);font-size:12.5px;margin-top:1px}
+.top .back{height:32px;width:32px;padding:0;display:grid;place-items:center;flex:none}
+.top .back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--faint)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--done);box-shadow:0 0 0 3px rgba(63,208,122,.15)}
+.live.stale i{background:var(--faint);box-shadow:none}
+.live.err i{background:var(--temp);box-shadow:0 0 0 3px rgba(255,90,82,.15)}
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.sum .todo{grid-column:1 / -1}
+@media (min-width:760px){.sum{grid-template-columns:1.4fr repeat(4,1fr)}.sum .todo{grid-column:auto}}
+@media (max-width:759px){.tile{padding:9px 10px}.tile .v{font-size:19px}.tile .v small{display:block;margin:2px 0 0;font-size:11px}.tile .k{font-size:8.5px;letter-spacing:.06em}}
+@media (max-width:440px){.cue .tc .dd{display:none}}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.tile .k{font:700 9.5px/1 var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:6px}
+.tile .v{font:600 22px/1.15 var(--ui);margin-top:6px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:12px;color:var(--dim);font-weight:500;margin-left:4px}
+.tile.todo{border-color:rgba(255,90,82,.35);background:linear-gradient(180deg,rgba(255,90,82,.08),transparent 70%),var(--panel)}
+.tile.todo .v{color:var(--temp)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
+
+/* bar */
+.bar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0;margin-top:-8px}
+.tabs{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:2px}
+.tabs button{border:0;background:none;height:28px;color:var(--dim);font-weight:600;font-size:13px;border-radius:7px}
+.tabs button.on{background:var(--raise);color:var(--fg)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:0 1 auto;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.chip{height:28px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;border-radius:14px;padding:0 11px;background:var(--panel);border-color:var(--line);color:var(--dim);white-space:nowrap}
+.chip.on{background:var(--panel2);border-color:var(--c,var(--line2));color:var(--fg)}
+.chip b{font-weight:600;color:var(--fg)}
+.search{flex:1 1 180px;height:32px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--fg);padding:0 11px;font:inherit;font-size:14px;outline:none;min-width:0}
+.search:focus{border-color:var(--accent)}
+
+/* cue list */
+.reel{font:700 10px/1 var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:16px 2px 8px;display:flex;align-items:center;gap:10px}
+.reel::after{content:"";flex:1;height:1px;background:var(--line)}
+.cue{display:grid;grid-template-columns:62px 1fr auto;align-items:start;align-content:start;gap:3px 12px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:11px;padding:10px 12px 10px 11px;margin-bottom:6px}
+.cue.typed{background:linear-gradient(90deg,var(--cb),var(--panel) 55%)}
+.cue .n{font:700 15px/1.25 var(--mono);color:var(--fg);grid-row:1;padding-top:1px;letter-spacing:-.02em}
+.cue .h{display:flex;align-items:center;gap:8px;min-width:0}
+.cue .ti{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cue .ti.none{color:var(--faint);font-weight:500}
+.ty{font:700 9.5px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--c);color:#111;flex:none}
+.cue .du{font:600 13px/1.25 var(--mono);color:var(--fg);text-align:right;font-variant-numeric:tabular-nums}
+.cue .tc{font:12px/1.4 var(--mono);color:var(--dim);grid-column:2 / 4;grid-row:2;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cue .tc span{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cue .tc .ar{color:var(--faint)}
+.cue .more{grid-column:2 / 4;display:flex;flex-direction:column;gap:5px;margin-top:5px}
+.cue .note{font-size:13.5px;color:var(--fg);white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,.035);border-radius:7px;padding:6px 9px}
+.cue .mus{display:flex;flex-wrap:wrap;gap:5px}
+.cue .mus span{font-size:12px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;color:var(--dim);display:inline-flex;align-items:center;gap:5px}
+.cue .mus span i{width:6px;height:6px;border-radius:2px;background:var(--audition)}
+.cue .mus span.stem i{background:var(--done)}
+.cue .mus span.mute{opacity:.5;text-decoration:line-through}
+.cue .hits{font:11.5px var(--mono);color:var(--faint)}
+.cue.notm{opacity:.45;border-left-color:var(--faint);background:var(--panel)}
+.cue.notm .n{text-decoration:line-through}
+@media (min-width:760px){
+  .cue{grid-template-columns:62px minmax(0,1.3fr) minmax(0,1fr) 92px;align-items:start}
+  .cue .tc{grid-column:3;grid-row:1;justify-content:flex-start}
+  .cue .du{grid-column:4;grid-row:1}
+  .cue .more{grid-column:2 / 5}
+}
+
+/* annotations */
+.mk{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:6px}
+.mk .tc{font:600 12.5px/1.4 var(--mono);color:var(--marker);cursor:pointer}
+.mk .nm{font-weight:600}
+.mk .nt{grid-column:2;color:var(--dim);white-space:pre-wrap;word-break:break-word;font-size:13.5px}
+
+/* deliveries */
+.proj{display:grid;grid-template-columns:1fr auto;gap:2px 12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;text-decoration:none;color:inherit}
+.proj:active{background:var(--panel2)}
+.proj .nm{font-weight:650;font-size:16px}
+.proj .dt{font-size:12.5px;color:var(--dim)}
+.proj .r{grid-row:span 2;text-align:right;align-self:center}
+.proj .r b{display:block;font:600 15px var(--mono);color:var(--temp)}
+.proj .r b.ok{color:var(--done)}
+.proj .r span{font-size:11px;color:var(--faint)}
+
+.empty{color:var(--dim);text-align:center;padding:48px 20px;line-height:1.55}
+.empty b{display:block;color:var(--fg);font-size:16px;margin-bottom:4px}
+.foot{color:var(--faint);font-size:11.5px;text-align:center;margin-top:24px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);background:#2d2e35;border:1px solid #45464e;color:var(--fg);padding:9px 14px;border-radius:10px;font-size:13px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:20}
+.install{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--dim)}
+.install b{color:var(--fg)}
+.install button{margin-left:auto;height:26px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="back" id="back" hidden aria-label="All deliveries"><svg viewBox="0 0 16 16"><path d="M10 3 5 8l5 5"/></svg></button>
+    <img src="apple-touch-icon.png" alt="">
+    <div class="t"><h1 id="title">Sauron</h1><div class="sub" id="sub"></div></div>
+    <span class="live stale" id="live"><i></i><span id="liveT"></span></span>
+  </header>
+  <div class="install" id="install" hidden><span>Add it to the iPhone: <b>Share</b> → <b>Add to Home Screen</b>.</span><button id="instX">OK</button></div>
+  <main id="main"></main>
+  <div class="foot" id="foot"></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script>
+"use strict";
+const TYPES = { temp:{label:"To score"}, audition:{label:"Audition"}, done:{label:"Done"}, sync:{label:"Sync"} };
+const ORDER = ["temp","audition","done","sync"];
+const $ = id => document.getElementById(id);
+function el(tag, attrs, kids){
+  const e = document.createElement(tag);
+  for (const k in attrs||{}){ const v = attrs[k]; if (v==null || v===false) continue;
+    if (k==="text") e.textContent = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v===true?"":v); }
+  for (const c of [].concat(kids||[])) if (c!=null && c!==false) e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return e;
+}
+const store = { get(k){ try { return JSON.parse(localStorage.getItem("sauron."+k)); } catch(e){ return null; } },
+                set(k,v){ try { localStorage.setItem("sauron."+k, JSON.stringify(v)); } catch(e){} } };
+const mmss = s => { s = Math.max(0, Math.round(s||0)); return Math.floor(s/60) + "′" + String(s%60).padStart(2,"0") + "″"; };
+const fmtDate = d => d ? new Date(d+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "";
+function ago(t){ const s = (Date.now()-t)/1000; if (s<50) return "just now"; if (s<3600) return Math.round(s/60)+" min ago";
+  if (s<86400) return Math.round(s/3600)+" h ago"; return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
+let toastT; function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 1800); }
+function copy(s){ (navigator.clipboard ? navigator.clipboard.writeText(s) : Promise.reject()).then(()=>toast("Copied "+s), ()=>{}); }
+
+/* ---------- lettura dal Gist: richieste condizionali (ETag), che non consumano il limite di GitHub ---------- */
+async function fetchGist(id, file){
+  const etags = store.get("etag") || {}, cache = store.get("c."+id);
+  const h = { Accept:"application/vnd.github+json" };
+  if (etags[id] && cache) h["If-None-Match"] = etags[id];
+  const r = await fetch("https://api.github.com/gists/"+encodeURIComponent(id), { headers:h, cache:"no-store" });
+  if (r.status===304 && cache) return { data:cache, fresh:false };
+  if (r.status===404) throw Object.assign(new Error("This page has been deleted or the link is wrong."), {gone:true});
+  if (r.status===403 || r.status===429){
+    const reset = +r.headers.get("x-ratelimit-reset");
+    throw new Error("GitHub is limiting requests" + (reset ? ", retry after " + new Date(reset*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : ""));
+  }
+  if (!r.ok) throw new Error("GitHub error " + r.status);
+  const g = await r.json(), f = g.files && g.files[file];
+  if (!f) throw new Error("This is not a Sauron page.");
+  const text = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  const data = JSON.parse(text);
+  etags[id] = r.headers.get("etag"); store.set("etag", etags); store.set("c."+id, data);
+  return { data, fresh:true };
+}
+
+/* ---------- stato ---------- */
+const Q = new URLSearchParams(location.search);
+let mode = Q.get("p") ? "project" : Q.get("i") ? "index" : null;
+let ID = Q.get("p") || Q.get("i");
+if (Q.get("i")) store.set("home", Q.get("i"));
+if (!mode){ const h = store.get("home"), last = store.get("last"); if (h){ mode = "index"; ID = h; } else if (last){ mode = "project"; ID = last; } }
+if (mode==="project") store.set("last", ID);
+let DOC = null, tab = "cues", filt = new Set(), q = "", lastOk = 0, lastErr = null;
+
+function setLive(){
+  const L = $("live");
+  L.className = "live" + (lastErr ? " err" : (Date.now()-lastOk > 120000 ? " stale" : ""));
+  $("liveT").textContent = lastErr ? "offline" : (DOC && DOC.updated ? "saved " + ago(DOC.updated) : "");
+}
+
+function render(){
+  const M = $("main"); M.innerHTML = "";
+  $("back").hidden = !(mode==="project" && store.get("home"));
+  if (!mode){
+    $("title").textContent = "Sauron"; $("sub").textContent = "";
+    M.append(el("div",{class:"empty"},[el("b",{text:"Open the link you received"}), "This page shows the cues of a Sauron project. Ask for the link, or in Sauron: Settings → Web page."]));
+    return;
+  }
+  if (!DOC){
+    M.append(el("div",{class:"empty"},[ lastErr ? el("b",{text:"Cannot load"}) : el("b",{text:"Loading…"}), lastErr ? lastErr : "" ]));
+    return;
+  }
+  if (mode==="index") return renderIndex(M);
+  renderProject(M);
+}
+
+function renderIndex(M){
+  $("title").textContent = "Deliveries"; document.title = "Sauron";
+  const P = (DOC.projects||[]).slice().sort((a,b)=>(a.delivery||"9")<(b.delivery||"9") ? -1 : (a.delivery||"9")>(b.delivery||"9") ? 1 : b.updated-a.updated);
+  $("sub").textContent = P.length + (P.length===1 ? " project" : " projects");
+  if (!P.length){ M.append(el("div",{class:"empty"},[el("b",{text:"No projects yet"}), "They appear here as soon as Sauron saves one."])); return; }
+  for (const p of P){
+    const left = p.toDo||0;
+    M.append(el("a",{class:"proj", href:"?p="+encodeURIComponent(p.id)},[
+      el("span",{class:"nm",text:p.name}),
+      el("span",{class:"r"},[el("b",{class:left?"":"ok", text:left?mmss(left):"✓"}), el("span",{text:left?"to score":"all scored"})]),
+      el("span",{class:"dt",text:[p.delivery ? "delivery "+fmtDate(p.delivery) : "", (p.count||0)+" cues", "saved "+ago(p.updated)].filter(Boolean).join(" · ")}),
+    ]));
+  }
+}
+
+function renderProject(M){
+  const D = DOC, T = D.totals || {byType:{}};
+  document.title = D.name + " — Sauron";
+  $("title").textContent = D.name;
+  const pic = D.picture ? [D.picture.pic ? "pic " + D.picture.pic : "", D.picture.date ? "cut " + fmtDate(D.picture.date) : ""].filter(Boolean).join(" · ") : "";
+  $("sub").textContent = [D.delivery ? "Delivery " + fmtDate(D.delivery) : "", D.fps ? D.fps.replace("DF"," DF") + " fps" : "", pic].filter(Boolean).join(" · ");
+
+  const cues = D.cues || [], live = cues.filter(c=>!c.notM);
+  const sum = el("div",{class:"sum"},[
+    el("div",{class:"tile todo"},[el("div",{class:"k",text:"To score"}), el("div",{class:"v"},[mmss(T.toDo), el("small",{text:"of "+mmss(T.secs)})])]),
+    el("div",{class:"tile"},[el("div",{class:"k",text:"Cues"}), el("div",{class:"v",text:String(live.length)})]),
+    ...ORDER.slice(1).map(k=>el("div",{class:"tile"},[el("div",{class:"k"},[el("i",{class:"dot",style:`--c:var(--${k})`}), TYPES[k].label]), el("div",{class:"v"},[String((T.byType[k]||{}).n||0), el("small",{text:mmss((T.byType[k]||{}).secs)})])])),
+  ]);
+  M.append(sum);
+
+  const bar = el("div",{class:"bar"});
+  const tabs = el("div",{class:"tabs"},[
+    el("button",{class:tab==="cues"?"on":"", text:"Cues", onclick:()=>{ tab="cues"; render(); }}),
+    el("button",{class:tab==="ann"?"on":"", text:"Annotations"+((D.markers||[]).length ? " "+D.markers.length : ""), onclick:()=>{ tab="ann"; render(); }}),
+  ]);
+  bar.append(tabs);
+  if (tab==="cues"){
+    bar.append(el("div",{class:"chips"}, ORDER.map(k=>{
+      const n = live.filter(c=>c.type===k).length;
+      return el("button",{class:"chip"+(filt.has(k)?" on":""), style:`--c:var(--${k})`, onclick:()=>{ filt.has(k)?filt.delete(k):filt.add(k); render(); }},
+        [el("i",{class:"dot"}), TYPES[k].label, el("b",{text:String(n)})]);
+    })));
+  }
+  const s = el("input",{class:"search", type:"search", placeholder:"Search title, note, file…", value:q});
+  s.addEventListener("input", ()=>{ q = s.value; drawList(); });
+  bar.append(s);
+  M.append(bar);
+  const list = el("div",{id:"list"}); M.append(list);
+  drawList();
+  if (document.activeElement!==s && q) {}
+}
+
+function match(c){
+  if (!q) return true;
+  const hay = [c.name, c.title, c.note, (c.music||[]).map(m=>m.name).join(" "), TYPES[c.type]&&TYPES[c.type].label].join(" ").toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(w=>hay.includes(w));
+}
+function drawList(){
+  const L = $("list"); if (!L) return; L.innerHTML = "";
+  const D = DOC;
+  if (tab==="ann"){
+    const mk = (D.markers||[]).filter(m=>!q || (m.name+" "+m.note+" "+m.tc).toLowerCase().includes(q.toLowerCase()));
+    if (!mk.length){ L.append(el("div",{class:"empty",text: (D.markers||[]).length ? "No annotation matches." : "No annotations in this project."})); return; }
+    for (const m of mk) L.append(el("div",{class:"mk"},[
+      el("span",{class:"tc",text:m.tc,onclick:()=>copy(m.tc)}), el("span",{class:"nm",text:m.name||"Marker"}),
+      m.note ? el("span",{class:"nt",text:m.note}) : null]));
+    return;
+  }
+  const cues = (D.cues||[]).filter(c=>(!filt.size || (!c.notM && filt.has(c.type))) && match(c));
+  if (!cues.length){ L.append(el("div",{class:"empty",text:(D.cues||[]).length ? "No cue matches." : "No cues yet."})); return; }
+  const reels = new Set((D.cues||[]).map(c=>c.reel));
+  let reel = null;
+  for (const c of cues){
+    if (reels.size>1 && c.reel!==reel){ reel = c.reel; L.append(el("div",{class:"reel",text:"Reel "+reel})); }
+    const k = TYPES[c.type] ? c.type : "temp";
+    const music = (c.music||[]);
+    const more = [
+      c.note ? el("div",{class:"note",text:c.note}) : null,
+      music.length ? el("div",{class:"mus"}, music.map(m=>el("span",{class:(m.kind==="stem"?"stem":"")+(m.mute?" mute":""), title:m.kind==="stem"?"Stem":"Audition"},[el("i"), m.name]))) : null,
+      (c.hits||[]).length ? el("div",{class:"hits",text:"hit " + c.hits.join(" · ")}) : null,
+    ].filter(Boolean);
+    L.append(el("div",{class:"cue"+(c.notM?" notm":"")+(k!=="temp"?" typed":""), style:`--c:var(--${k});--cb:var(--${k}Body)`},[
+      el("span",{class:"n",text:c.name || "—"}),
+      el("div",{class:"h"},[el("span",{class:"ty",text:c.notM?"Not an M":TYPES[k].label}), el("span",{class:"ti"+(c.title?"":" none"),text:c.title||"Untitled"})]),
+      el("span",{class:"du",text:mmss(c.secs)}),
+      el("div",{class:"tc"},[el("span",{text:c.in,onclick:()=>copy(c.in)}), el("span",{class:"ar",text:"→"}), el("span",{text:c.out,onclick:()=>copy(c.out)}), el("span",{class:"ar dd",text:"·"}), el("span",{class:"dd",text:c.dur,onclick:()=>copy(c.dur)})]),
+      more.length ? el("div",{class:"more"}, more) : null,
+    ]));
+  }
+}
+
+/* ---------- caricamento e aggiornamento ---------- */
+let busy = false;
+async function load(){
+  if (!mode || busy) return; busy = true;
+  try {
+    const { data, fresh } = await fetchGist(ID, mode==="index" ? "sauron-index.json" : "sauron.json");
+    lastOk = Date.now(); lastErr = null;
+    if (fresh || !DOC){ DOC = data; render(); }
+  } catch(e){
+    lastErr = e.message;
+    if (!DOC){ const c = store.get("c."+ID); if (c && !e.gone){ DOC = c; } }
+    if (e.gone){ DOC = null; }
+    render();
+  } finally { busy = false; setLive(); }
+}
+$("back").onclick = ()=>{ location.href = "?i=" + encodeURIComponent(store.get("home")); };
+const standalone = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+if (!standalone && /iPhone|iPad/.test(navigator.userAgent) && mode && !store.get("instOk")) $("install").hidden = false;
+$("instX").onclick = ()=>{ store.set("instOk", true); $("install").hidden = true; };
+$("foot").textContent = "Read-only · updated by Sauron at every save";
+{ const c = mode && store.get("c."+ID); if (c){ DOC = c; } }
+render(); load();
+setInterval(()=>{ if (!document.hidden) load(); }, 30000);
+setInterval(setLive, 20000);
+document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) load(); });
+</script>
+</body>
+</html>

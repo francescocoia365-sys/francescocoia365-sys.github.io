@@ -69,7 +69,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 #griglia{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px;align-content:start;
   padding:8px 4px;list-style:none;margin:0;-webkit-overflow-scrolling:touch}
 @media(min-width:600px){#griglia{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
-#griglia:empty::after{content:"Scrivi un film qui sopra e premi +";grid-column:1/-1;text-align:center;padding:30px 10px;
+#griglia:empty::after{content:"La wishlist è vuota. Scrivi un film qui sopra.";grid-column:1/-1;text-align:center;padding:30px 10px;
   border:3px dashed #ffffff40;border-radius:16px;color:#e6d4ff;font-weight:700}
 
 /* locandina */
@@ -86,7 +86,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .poster.carica::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff5 50%,transparent 70%);
   background-size:250% 100%;animation:luce 1s linear infinite}
 @keyframes luce{from{background-position:120% 0}to{background-position:-130% 0}}
-.film.nuovo{animation:pop .45s cubic-bezier(.2,1.8,.4,1)}
+.film.nuovo{animation:pop .45s cubic-bezier(.2,1.8,.4,1) backwards}
 @keyframes pop{from{transform:scale(0) rotate(-20deg)}}
 .x,.cambia{position:absolute;z-index:2;width:34px;height:34px;border-radius:50%;font-weight:900;font-size:16px;display:grid;place-items:center;
   box-shadow:0 3px 0 #0006}
@@ -113,6 +113,11 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;background:none}
 .app.botta{animation:botta .4s}
 @keyframes botta{15%{transform:translate(-10px,6px) rotate(-1deg)}35%{transform:translate(9px,-7px) rotate(1deg)}60%{transform:translate(-6px,3px)}80%{transform:translate(4px,-2px)}}
 
+#toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));z-index:26;transform:translate(-50%,-160%);max-width:92vw;
+  font-family:var(--f-d);font-size:1.05rem;line-height:1.05;text-align:center;background:var(--giallo);color:#2a0030;padding:12px 18px;border-radius:16px;
+  box-shadow:0 6px 0 #b38a00,0 12px 24px #0008;pointer-events:none;overflow-wrap:anywhere}
+#toast.on{animation:toast 1.9s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes toast{0%{transform:translate(-50%,-160%) rotate(-6deg)}14%,80%{transform:translate(-50%,0) rotate(-2deg)}100%{transform:translate(-50%,-160%)}}
 #flash{position:fixed;inset:0;z-index:20;background:#fff;opacity:0;pointer-events:none}
 #flash.on{animation:flash .45s ease-out}
 @keyframes flash{0%{opacity:.95}100%{opacity:0}}
@@ -154,13 +159,12 @@ body.finale #vince{display:flex}
   <section class="schermo" id="lista">
     <h1 class="logo">Ne resterà <b>uno</b></h1>
     <form id="form" autocomplete="off">
-      <input id="q" type="text" enterkeyhint="done" placeholder="Scrivi un film (o tanti, con la virgola)" aria-label="Titolo del film">
+      <input id="q" type="text" enterkeyhint="done" placeholder="Che film ti è venuto in mente?" autofocus aria-label="Titolo del film">
       <button id="add" type="submit" aria-label="Aggiungi">+</button>
     </form>
     <p class="dritta" id="dritta"></p>
     <ul id="griglia"></ul>
-    <button class="big" id="via" type="button">Si comincia!</button>
-    <div class="riga"><button class="mini" id="svuota" type="button">Svuota tutto</button></div>
+    <button class="big" id="via" type="button">Scegli!</button>
   </section>
 
   <section class="schermo" id="arena">
@@ -170,7 +174,8 @@ body.finale #vince{display:flex}
     <div class="riga">
       <button class="mini" id="auto" type="button" aria-pressed="false">Vai da solo</button>
       <button class="mini" id="suono" type="button" aria-pressed="true">Suoni</button>
-      <button class="mini" id="indietro" type="button">Cambia film</button>
+      <button class="mini" id="ripesca" type="button">Ripesca</button>
+      <button class="mini" id="indietro" type="button">Wishlist</button>
     </div>
   </section>
 </div>
@@ -180,9 +185,10 @@ body.finale #vince{display:flex}
   <div id="vposter"></div>
   <h2 id="vtit"></h2>
   <button class="big" id="ancora" type="button">Rivincita!</button>
-  <div class="riga"><button class="mini" id="vcambia" type="button">Cambia film</button></div>
+  <div class="riga"><button class="mini" id="visto" type="button">Visto, toglilo</button><button class="mini" id="vcambia" type="button">Wishlist</button></div>
 </div>
 
+<div id="toast" role="status"></div>
 <div id="urlo"><span class="u1">Fuori!</span><span class="u2" id="urlo-t"></span></div>
 <div id="flash"></div>
 <canvas id="fx"></canvas>
@@ -194,7 +200,7 @@ var $=function(id){return document.getElementById(id)};
 var KEY="ne-restera-uno/v2";
 var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
 function rand(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
-var films=[], vivi=[], busy=false, auto=false, suoni=true, uid=0;
+var films=[], vivi=[], busy=false, auto=false, suoni=true, uid=0, MAX=8, PESCA=6;
 
 /* ---------- memoria ---------- */
 function salva(){try{localStorage.setItem(KEY,JSON.stringify({films:films,suoni:suoni}))}catch(e){}}
@@ -214,27 +220,31 @@ function jsonp(url,ms){return new Promise(function(ok,ko){
   window[cb]=function(d){fine();ok(d)};s.onerror=function(){fine();ko(new Error("rete"))};
   s.src=url+(url.indexOf("?")<0?"?":"&")+"callback="+cb;document.head.appendChild(s)})}
 function itunes(q){
-  return jsonp("https://itunes.apple.com/search?media=movie&entity=movie&country=IT&lang=it_it&limit=6&term="+encodeURIComponent(q)).then(function(d){
+  return jsonp("https://itunes.apple.com/search?media=movie&entity=movie&country=IT&lang=it_it&limit=4&term="+encodeURIComponent(q)).then(function(d){
     return (d.results||[]).filter(function(r){return r.artworkUrl100}).map(function(r){
-      return {t:String(r.trackName||"").replace(/\s*\(.*?\)\s*/g," ").trim(),y:(r.releaseDate||"").slice(0,4),img:r.artworkUrl100.replace(/\/\d+x\d+bb\./,"/400x600bb.")}})})}
+      return {t:String(r.trackName||"").replace(/\s*\(.*?\)\s*/g," ").trim(),img:r.artworkUrl100.replace(/\/\d+x\d+bb\./,"/400x600bb."),k:1}})})}
 function wiki(lang,q){
-  return jsonp("https://"+lang+".wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrlimit=4&gsrsearch="+encodeURIComponent(q+" film")+
+  return jsonp("https://"+lang+".wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrlimit=4&gsrenablerewrites=1&gsrsearch="+encodeURIComponent(q+" film")+
     "&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any").then(function(d){
     var p=(d.query&&d.query.pages)||{};
-    return Object.keys(p).map(function(k){return p[k]}).filter(function(x){return x.thumbnail&&x.thumbnail.height>=x.thumbnail.width})
-      .sort(function(a,b){return a.index-b.index}).map(function(x){return {t:x.title.replace(/\s*\(.*?\)\s*/g," ").trim(),y:"",img:x.thumbnail.source}})})}
-function voto(c,q){var a=norm(c.t),b=norm(q);if(a===b)return 3;if(a.indexOf(b)===0||b.indexOf(a)===0)return 2;if(a.indexOf(b)>=0||b.indexOf(a)>=0)return 1;return 0}
+    return Object.keys(p).map(function(k){return p[k]}).sort(function(a,b){return a.index-b.index}).map(function(x){
+      var th=x.thumbnail,ok=th&&th.height>=th.width*1.25,src=ok?th.source:"";
+      return {t:x.title.replace(/\s*\(.*?\)\s*/g," ").trim(),img:src,k:src&&/\/wikipedia\/(en|it)\//.test(src)?0:2}})})}
+function lev(a,b){var m=a.length,n=b.length,r=[],i,j;for(j=0;j<=n;j++)r[j]=j;
+  for(i=1;i<=m;i++){var prev=r[0];r[0]=i;for(j=1;j<=n;j++){var t=r[j];r[j]=Math.min(r[j]+1,r[j-1]+1,prev+(a.charAt(i-1)===b.charAt(j-1)?0:1));prev=t}}return r[n]}
+function sim(a,b){a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;if(a.indexOf(b)===0||b.indexOf(a)===0)return .85;return 1-lev(a,b)/Math.max(a.length,b.length)}
 function cerca(f){
   f.loading=true;
   var vuoto=function(){return []};
-  return Promise.all([itunes(f.q).catch(vuoto),wiki("it",f.q).catch(vuoto),wiki("en",f.q).catch(vuoto)]).then(function(r){
-    var tutti=r[0].concat(r[1],r[2]),visti={},c=[];
-    tutti.forEach(function(x,i){x.o=i;if(!visti[x.img]){visti[x.img]=1;c.push(x)}});
-    c.sort(function(a,b){return voto(b,f.q)-voto(a,f.q)||a.o-b.o});
-    f.cands=c.slice(0,6).map(function(x){return {t:x.t,y:x.y,img:x.img}});f.ci=0;f.loading=false;
-    applica(f);salva();disegnaLista();
+  return Promise.all([wiki("en",f.q).catch(vuoto),wiki("it",f.q).catch(vuoto),itunes(f.q).catch(vuoto)]).then(function(r){
+    var nome="";[r[1],r[2],r[0]].some(function(l){return l.some(function(x){if(sim(x.t,f.q)>=.72){nome=x.t;return true}})});
+    f.title=nome||bello(f.q);
+    var visti={},c=[];r[0].concat(r[1],r[2]).forEach(function(x,i){if(x.img&&!visti[x.img]){visti[x.img]=1;x.o=i;c.push(x)}});
+    c.sort(function(a,b){return a.k-b.k||a.o-b.o});
+    f.cands=c.slice(0,6).map(function(x){return {img:x.img}});f.ci=0;f.loading=false;
+    applica(f);salva();if(document.body.dataset.s==="lista")disegnaLista();
   })}
-function applica(f){var c=f.cands&&f.cands[f.ci];if(c){f.img=c.img;f.y=c.y;if(voto(c,f.q)>0)f.title=c.t;else f.title=bello(f.q)}else{f.img="";f.title=bello(f.q)}}
+function applica(f){var c=f.cands&&f.cands[f.ci];f.img=c?c.img:""}
 
 /* ---------- locandina ---------- */
 function carta(f,extra){
@@ -257,25 +267,27 @@ function disegnaLista(){
       k.setAttribute("aria-label","Cambia copertina di "+f.title);k.dataset.c=f.id;c.appendChild(k)}
     li.appendChild(c);g.appendChild(li)});
   var n=films.length,d=$("dritta");d.textContent="";
-  if(n<2){d.textContent=n?"Ancora uno e si parte":"Servono almeno 2 film"}
-  else{var b=document.createElement("b");b.textContent=n+" film";d.appendChild(b);d.appendChild(document.createTextNode(" in gara. Copertina sbagliata? Tocca ↻"))}
+  if(!n){d.textContent="Scrivi e premi invio: finisce subito in wishlist"}
+  else{var b=document.createElement("b");b.textContent=n+(n===1?" film":" film");d.appendChild(b);d.appendChild(document.createTextNode(" in wishlist"+(n>MAX?". Scegli ne pesca "+PESCA+" a caso":"")))}
   $("via").classList.toggle("fermo",n<2);
 }
 function aggiungi(testo){
   var voci=testo.split(/[\n,;]+/).map(function(s){return s.trim()}).filter(Boolean);
-  var gia={};films.forEach(function(f){gia[norm(f.q)]=1});
+  var gia={},nuovi=[];films.forEach(function(f){gia[norm(f.q)]=1;gia[norm(f.title)]=1});
   voci.forEach(function(v){var k=norm(v);if(!k||gia[k])return;gia[k]=1;
-    var f={id:"f"+Date.now().toString(36)+(uid++),q:v.slice(0,80),title:bello(v.slice(0,80)),img:"",y:"",cands:[],ci:0,loading:true};
-    films.push(f);ultimoNuovo[f.id]=1;cerca(f)});
-  disegnaLista();salva();bip(660,.08);
-  var g=$("griglia");g.scrollTop=g.scrollHeight;
+    var f={id:"f"+Date.now().toString(36)+(uid++),q:v.slice(0,80),title:bello(v.slice(0,80)),img:"",y:"",cands:[],ci:0,loading:true,n:Date.now()+uid};
+    films.push(f);nuovi.push(f.title);ultimoNuovo[f.id]=1;cerca(f)});
+  films.sort(function(a,b){return (b.n||0)-(a.n||0)});
+  disegnaLista();salva();
+  if(nuovi.length){bip(660,.07,"square",.08);bip(990,.12,"square",.08,.08);toast(nuovi.length===1?"In wishlist: "+nuovi[0]:nuovi.length+" film in wishlist!");
+    scoppio(innerWidth/2,90,26,true);$("griglia").scrollTop=0}
+  else{toast("C'era già!");bip(140,.18,"sawtooth")}
 }
 $("form").addEventListener("submit",function(e){e.preventDefault();audio();var q=$("q");if(!q.value.trim()){rifiuta($("add"));return}aggiungi(q.value);q.value="";q.focus()});
 $("griglia").addEventListener("click",function(e){
   var x=e.target.closest("[data-x]"),c=e.target.closest("[data-c]");
   if(x){films=films.filter(function(f){return f.id!==x.dataset.x});disegnaLista();salva()}
   else if(c){var f=films.filter(function(f){return f.id===c.dataset.c})[0];if(f){f.ci=(f.ci+1)%f.cands.length;applica(f);disegnaLista();salva()}}});
-$("svuota").addEventListener("click",function(){films=[];disegnaLista();salva()});
 function rifiuta(b){b.classList.remove("no");void b.offsetWidth;b.classList.add("no");bip(140,.18,"sawtooth")}
 $("via").addEventListener("click",function(){audio();if(films.length<2){rifiuta($("via"));$("q").focus();return}entraArena()});
 
@@ -283,9 +295,12 @@ $("via").addEventListener("click",function(){audio();if(films.length<2){rifiuta(
 function schermo(s){document.body.dataset.s=s}
 function entraArena(){
   document.body.classList.remove("finale");busy=false;
-  vivi=films.slice();schermo("arena");
+  vivi=films.slice();
+  if(vivi.length>MAX){for(var i=vivi.length-1;i>0;i--){var j=rand(i+1),t=vivi[i];vivi[i]=vivi[j];vivi[j]=t}vivi=vivi.slice(0,PESCA)}
+  $("ripesca").style.display=films.length>MAX?"":"none";$("fuori").textContent="Fuori uno!";
+  schermo("arena");
   var r=$("ring");r.textContent="";r.className="";
-  vivi.forEach(function(f){var c=carta(f);try{c.style.viewTransitionName="c-"+f.id}catch(e){}r.appendChild(c)});
+  vivi.forEach(function(f,i){var c=carta(f,"nuovo");c.style.animationDelay=(i*70)+"ms";try{c.style.viewTransitionName="c-"+f.id}catch(e){}r.appendChild(c)});
   misura();conta();squillo();
 }
 function misura(){
@@ -346,6 +361,7 @@ $("fuori").addEventListener("click",gioca);
 $("auto").addEventListener("click",function(){auto=!auto;this.setAttribute("aria-pressed",String(auto));if(auto&&!busy)gioca()});
 $("suono").addEventListener("click",function(){suoni=!suoni;this.setAttribute("aria-pressed",String(suoni));salva();if(suoni){audio();bip(880,.1)}});
 function tornaLista(){auto=false;$("auto").setAttribute("aria-pressed","false");document.body.classList.remove("finale");fermaFesta();schermo("lista");disegnaLista()}
+$("ripesca").addEventListener("click",function(){if(busy)return rifiuta(this);entraArena()});
 $("indietro").addEventListener("click",function(){if(busy)return rifiuta(this);tornaLista()});
 
 /* ---------- vittoria ---------- */
@@ -359,8 +375,10 @@ function vittoria(f){
 function fermaFesta(){clearInterval(festaT)}
 $("ancora").addEventListener("click",function(){fermaFesta();auto=false;$("auto").setAttribute("aria-pressed","false");entraArena()});
 $("vcambia").addEventListener("click",tornaLista);
+$("visto").addEventListener("click",function(){var v=vivi[0];if(v){films=films.filter(function(f){return f.id!==v.id});salva()}tornaLista();toast("Tolto dalla wishlist")});
 
 /* ---------- effetti ---------- */
+function toast(t){var e=$("toast");e.textContent=t;e.classList.remove("on");void e.offsetWidth;e.classList.add("on")}
 function lampo(){var f=$("flash");f.classList.remove("on");void f.offsetWidth;f.classList.add("on")}
 function scossa(){var a=$("app");a.classList.remove("botta");void a.offsetWidth;a.classList.add("botta")}
 function urlo(t){var u=$("urlo");$("urlo-t").textContent=t;u.classList.remove("on");void u.offsetWidth;u.classList.add("on")}

@@ -3,25 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#12122b">
+<meta name="theme-color" content="#0f0f14">
 <title>Last Reel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* Sala giochi 8 bit, ma ordinata: fondo fermo, un colore per azione, il caos sta solo nelle esplosioni. */
+/* Sala buia, testo bianco pieno, un giallo per l'azione principale e un rosso per chi esce.
+   L'8 bit resta solo dove serve: nelle esplosioni. */
 :root{
   color-scheme:dark;
-  --bg:#12122b; --panel:#1c1c42; --line:#35356e;
-  --ink:#f3f1ff; --muted:#a7a4d4;
-  --yellow:#ffd23f; --pink:#ff4d8d; --cyan:#4de2ff;
-  --f-d:"Pixelify Sans","Courier New",monospace;
-  --f-b:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#0f0f14; --panel:#1c1c26; --line:#3b3b4d;
+  --ink:#ffffff; --muted:#cfcfdb;
+  --yellow:#ffdd33; --pink:#ff4757; --cyan:#7ce7ff;
+  --f-d:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-b:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:16px;line-height:1.3;-webkit-user-select:none;user-select:none;touch-action:manipulation;
-  background-image:radial-gradient(#ffffff12 1px,transparent 1.5px);background-size:16px 16px}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:17px;line-height:1.35;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 [hidden]{display:none!important}
@@ -33,27 +33,27 @@ body[data-s="lista"] #lista,body[data-s="arena"] #arena,body[data-s="hall"] #hal
 
 /* testata */
 .testa{display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{font-family:var(--f-d);font-weight:700;font-size:1.7rem;line-height:1;margin:0;letter-spacing:.02em}
+h1{font-family:var(--f-d);font-weight:800;font-size:1.9rem;line-height:1;margin:0;letter-spacing:-.02em}
 h1 i{font-style:normal;color:var(--yellow)}
-.link{font-family:var(--f-d);font-weight:500;font-size:1rem;color:var(--muted);padding:10px 4px;min-height:44px}
+.link{font-weight:700;font-size:1rem;color:var(--ink);padding:0 14px;min-height:44px;border-radius:22px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line)}
 .link b{color:var(--yellow);font-weight:700}
-.sub{margin:0;color:var(--muted);font-size:.92rem}
+.sub{margin:0;color:var(--muted);font-size:1rem}
 .sub b{color:var(--ink);font-weight:700}
 
 /* bottoni */
-.btn{font-family:var(--f-d);font-weight:700;font-size:1.25rem;line-height:1;display:flex;align-items:center;justify-content:center;gap:10px;
-  min-height:58px;padding:0 16px;border-radius:8px;color:#17172f;background:var(--ink);box-shadow:0 5px 0 #0007;transition:transform .06s,box-shadow .06s}
+.btn{font-family:var(--f-d);font-weight:800;font-size:1.25rem;line-height:1;display:flex;align-items:center;justify-content:center;gap:10px;
+  min-height:60px;padding:0 16px;border-radius:16px;color:#111118;background:var(--ink);box-shadow:0 5px 0 #0007;transition:transform .06s,box-shadow .06s}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #0007}
 .btn.y{background:var(--yellow)} .btn.c{background:var(--cyan)} .btn.p{background:var(--pink);color:#fff}
-.btn.xl{min-height:66px;font-size:1.5rem;width:100%}
+.btn.xl{min-height:70px;font-size:1.6rem;width:100%}
 .btn.q{width:58px;flex:none;padding:0;background:var(--panel);color:var(--ink);box-shadow:0 5px 0 #0007,inset 0 0 0 2px var(--line)}
 .btn.fermo{filter:saturate(.35) brightness(.75)}
-.btn.no,.mini.no{animation:no .3s steps(4)}
+.btn.no,.mini.no{animation:no .3s ease}
 @keyframes no{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
 .btn svg{width:26px;height:26px;flex:none}
-.mini{font-weight:500;font-size:.9rem;padding:0 12px;min-height:44px;border-radius:8px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);color:var(--ink)}
+.mini{font-weight:700;font-size:.95rem;padding:0 14px;min-height:46px;border-radius:23px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);color:var(--ink)}
 .mini b{color:var(--yellow);font-weight:700}
-.mini[aria-pressed="true"]{background:var(--cyan);color:#10203a;box-shadow:none}
+.mini[aria-pressed="true"]{background:var(--ink);color:#111118;box-shadow:none}
 .riga{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .dock{display:grid;gap:12px}
 .dock .due{display:flex;gap:10px}
@@ -66,33 +66,33 @@ h1 i{font-style:normal;color:var(--yellow)}
 #griglia{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;align-content:start;
   list-style:none;margin:0;padding:2px;-webkit-overflow-scrolling:touch}
 @media(min-width:600px){#griglia{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}}
-.vuoto{grid-column:1/-1;margin:0;padding:34px 16px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:8px}
+.vuoto{grid-column:1/-1;margin:0;padding:34px 16px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:16px;font-size:1.05rem}
 
 /* locandina */
 .film{position:relative;display:block;width:100%;container-type:inline-size;text-align:left}
-.poster{position:relative;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:var(--g,#333);box-shadow:0 0 0 2px var(--ink),0 5px 0 #0007;
+.poster{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--g,#333);box-shadow:0 0 0 1px #ffffff2e,0 8px 18px #000a;
   display:flex;align-items:center;justify-content:center}
 .poster img,.poster canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .poster canvas{image-rendering:pixelated;z-index:2}
-.poster .t{font-family:var(--f-d);font-weight:700;font-size:calc(var(--ts,14)*1cqw);line-height:1;text-align:center;padding:6cqw;color:#fff;overflow-wrap:anywhere}
+.poster .t{font-family:var(--f-d);font-weight:800;font-size:calc(var(--ts,14)*1cqw);line-height:1;text-align:center;padding:6cqw;color:#fff;overflow-wrap:anywhere}
 .poster.ok .t{display:none}
-.poster .cap{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12cqw 5cqw 4cqw;font-weight:500;font-size:max(10px,8cqw);line-height:1.1;text-align:center;
-  background:linear-gradient(transparent,#000d 60%);display:none;overflow-wrap:anywhere}
+.poster .cap{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:14cqw 5cqw 5cqw;font-weight:700;font-size:max(12px,9cqw);line-height:1.12;color:#fff;text-align:center;
+  background:linear-gradient(transparent,#000e 55%);display:none;overflow-wrap:anywhere}
 .poster.ok .cap{display:block}
 .poster.carica::after{content:"";position:absolute;inset:0;z-index:3;background:repeating-linear-gradient(90deg,#fff3 0 8px,transparent 8px 16px);animation:carica .5s steps(2) infinite}
 @keyframes carica{to{background-position:8px 0}}
-.film.nuovo{animation:pop .3s steps(5) backwards}
+.film.nuovo{animation:pop .35s cubic-bezier(.2,1.5,.4,1) backwards}
 @keyframes pop{from{transform:scale(0)}}
 
 /* arena */
-#conta{font-family:var(--f-d);font-weight:700;text-align:center;font-size:1.6rem;line-height:1;margin:0;min-height:1em}
+#conta{font-family:var(--f-d);font-weight:800;text-align:center;font-size:1.8rem;line-height:1;margin:0;min-height:1em}
 #conta b{color:var(--yellow)}
 #campo{flex:1;min-height:0;position:relative}
 #ring{position:absolute;inset:0;display:grid;justify-content:center;align-content:center;gap:10px}
 #ring .film{transition:opacity .12s,filter .12s}
 #ring.gira .film:not(.mira):not(.sfida):not(.trema){opacity:.3;filter:saturate(.3)}
 #ring .film.mira{z-index:3;transform:scale(1.08)}
-#ring .film.mira .poster{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--pink);animation:cursore .2s steps(2) infinite}
+#ring .film.mira .poster{box-shadow:0 0 0 4px var(--bg),0 0 0 9px var(--pink);animation:cursore .2s steps(2) infinite}
 @keyframes cursore{50%{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--yellow)}}
 #ring.salva .film.mira .poster{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--cyan);animation:cursore2 .2s steps(2) infinite}
 @keyframes cursore2{50%{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--ink)}}
@@ -108,53 +108,54 @@ h1 i{font-style:normal;color:var(--yellow)}
 @keyframes flash{0%{opacity:.9}100%{opacity:0}}
 #ko{position:fixed;left:0;right:0;top:36%;z-index:41;text-align:center;pointer-events:none;padding:0 12px;display:none}
 #ko.on{display:block;animation:ko 1.2s steps(10) both}
-#ko .k1{display:block;font-family:var(--f-d);font-weight:700;font-size:clamp(4rem,24vw,8rem);line-height:.85;color:var(--yellow);text-shadow:6px 6px 0 var(--pink),10px 10px 0 #000}
-#ko .k2{display:inline-block;margin-top:16px;background:#000;color:#fff;font-weight:500;font-size:1.05rem;padding:6px 12px;border-radius:4px;max-width:100%;overflow-wrap:anywhere}
+#ko .k1{display:block;font-family:var(--f-d);font-weight:800;font-size:clamp(4rem,24vw,8rem);line-height:.85;color:var(--yellow);text-shadow:6px 6px 0 var(--pink),10px 10px 0 #000}
+#ko .k2{display:inline-block;margin-top:16px;background:#000;color:#fff;font-weight:700;font-size:1.15rem;padding:8px 14px;border-radius:10px;max-width:100%;overflow-wrap:anywhere}
 @keyframes ko{0%{transform:scale(3);opacity:0}15%{transform:scale(1);opacity:1}85%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
-#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));z-index:45;transform:translate(-50%,-200%);max-width:92vw;font-weight:500;text-align:center;
-  background:var(--ink);color:#17172f;padding:11px 16px;border-radius:8px;box-shadow:0 5px 0 #0007;pointer-events:none;overflow-wrap:anywhere}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));z-index:45;transform:translate(-50%,-200%);width:max-content;max-width:92vw;font-weight:600;font-size:1.05rem;text-align:center;
+  background:var(--ink);color:#111118;padding:13px 18px;border-radius:16px;box-shadow:0 10px 30px #000c;pointer-events:none;overflow-wrap:anywhere}
 #toast b{font-weight:700}
-#toast.on{animation:toast 2.2s steps(14) both}
+#toast.on{animation:toast 2.6s cubic-bezier(.2,1.3,.4,1) both}
 @keyframes toast{0%{transform:translate(-50%,-200%)}10%,85%{transform:translate(-50%,0)}100%{transform:translate(-50%,-200%)}}
 
 /* fogli */
 .velo{position:fixed;inset:0;z-index:37;background:#0b0b1dd9;display:flex;align-items:flex-end;justify-content:center}
-.foglio{width:100%;max-width:520px;max-height:88%;overflow-y:auto;background:var(--panel);border-radius:12px 12px 0 0;box-shadow:0 -2px 0 var(--line);
+.foglio{width:100%;max-width:520px;max-height:88%;overflow-y:auto;background:var(--panel);border-radius:22px 22px 0 0;box-shadow:0 -2px 0 var(--line);
   padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:10px}
 .foglio .su{display:flex;gap:14px;align-items:center}
 .foglio .su .mostra{width:84px;flex:none;container-type:inline-size}
-.foglio h2{font-family:var(--f-d);font-weight:700;font-size:1.35rem;line-height:1.05;margin:0;overflow-wrap:anywhere}
-.foglio .btn{width:100%;font-size:1.1rem;min-height:52px}
+.foglio h2{font-family:var(--f-d);font-weight:800;font-size:1.45rem;line-height:1.05;margin:0;overflow-wrap:anywhere}
+.foglio .btn{width:100%;font-size:1.1rem;min-height:56px}
 .foglio .btn.s{background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
 #rip-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;padding:2px}
-#scrivi{position:fixed;left:0;right:0;top:0;z-index:38;background:var(--panel);box-shadow:0 2px 0 var(--line),0 0 0 100vmax #0b0b1dd9;
-  padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;display:flex;gap:8px}
-#q{flex:1;min-width:0;font:inherit;font-weight:500;font-size:1.1rem;color:#17172f;background:var(--ink);border:0;border-radius:8px;padding:0 14px;min-height:52px;
-  -webkit-user-select:text;user-select:text}
-#q::placeholder{color:#7b78a8}
-#scrivi .btn{min-height:52px;font-size:1.05rem}
+#scrivi{display:flex;gap:8px}
+#q{flex:1;min-width:0;font:inherit;font-weight:500;font-size:1.05rem;color:#17172f;background:var(--ink);border:0;border-radius:16px;padding:0 16px;min-height:60px;
+  -webkit-user-select:text;user-select:text;-webkit-appearance:none;appearance:none}
+#q::placeholder{color:#6a6a7a}
+#scrivi .btn{min-height:60px;width:60px;flex:none;padding:0;font-size:1.9rem}
+#errore{position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#b00020;color:#fff;font:500 13px/1.3 system-ui,sans-serif;padding:10px 12px;border-radius:8px;
+  -webkit-user-select:text;user-select:text;overflow-wrap:anywhere}
 
 /* vincitore */
 #vince{position:fixed;inset:0;z-index:35;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);
   padding:calc(16px + env(safe-area-inset-top,0px)) 18px calc(16px + env(safe-area-inset-bottom,0px))}
 body.finale #vince{display:flex}
-.v1{font-family:var(--f-d);font-weight:500;font-size:1.2rem;margin:0;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
+.v1{font-weight:700;font-size:1.1rem;margin:0;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 #vposter{width:min(60vw,36vh,300px);container-type:inline-size}
 #vposter .poster{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--yellow),0 12px 0 #0008}
-#vtit{font-family:var(--f-d);font-weight:700;font-size:clamp(1.7rem,8vw,2.8rem);line-height:1;margin:0;text-align:center;color:var(--yellow);overflow-wrap:anywhere;max-width:100%}
+#vtit{font-family:var(--f-d);font-weight:800;font-size:clamp(1.7rem,8vw,2.8rem);line-height:1;margin:0;text-align:center;color:var(--yellow);overflow-wrap:anywhere;max-width:100%}
 #vince .btn.xl{max-width:420px}
 
 /* hall of fame */
 #albo{flex:1;min-height:0;overflow-y:auto;list-style:none;margin:0;padding:2px;display:grid;gap:10px;align-content:start}
-#albo li{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:8px;padding:10px;box-shadow:inset 0 0 0 2px var(--line)}
+#albo li{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:16px;padding:10px;box-shadow:inset 0 0 0 2px var(--line)}
 #albo li.vuoto{display:block;background:none;box-shadow:none}
 #albo .mostra{width:54px;flex:none;container-type:inline-size}
 #albo .mostra .cap{display:none!important}
 #albo .chi{flex:1;min-width:0}
 #albo .chi strong{display:block;font-weight:700;overflow-wrap:anywhere}
-#albo .chi span{color:var(--muted);font-size:.86rem}
+#albo .chi span{color:var(--muted);font-size:.95rem}
 #albo .chi span b{color:var(--yellow);font-weight:500}
-#albo button{width:44px;height:44px;border-radius:8px;flex:none;font-size:1.1rem;color:var(--muted);box-shadow:inset 0 0 0 2px var(--line)}
+#albo button{width:46px;height:46px;border-radius:23px;flex:none;font-size:1.15rem;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01s!important;animation-iteration-count:1!important}}
 </style>
@@ -167,18 +168,17 @@ body.finale #vince{display:flex}
       <h1>LAST <i>REEL</i></h1>
       <button class="link" id="apri-hall" type="button">Hall of Fame <b id="n-hall"></b></button>
     </div>
+    <form id="scrivi" autocomplete="off">
+      <input id="q" type="text" enterkeyhint="send" autocapitalize="sentences" placeholder="Scrivi un film, o: con Margot Robbie" aria-label="Titolo del film o attore">
+      <button class="btn c" id="invia" type="submit" aria-label="Aggiungi">+</button>
+    </form>
     <p class="sub" id="dritta"></p>
     <ul id="griglia"></ul>
     <div class="dock">
-      <div class="due">
-        <button class="btn c" id="mic" type="button">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 2h6v12H9zM5 10h2v4h2v2h6v-2h2v-4h2v6h-2v2h-4v2h4v2H7v-2h4v-2H7v-2H5z"/></svg>
-          <span id="mic-t">Dì un film</span>
-        </button>
-        <button class="btn q" id="tast" type="button" aria-label="Scrivi con la tastiera">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 5h20v14H2zm2 2v10h16V7zm2 2h2v2H6zm4 0h2v2h-2zm4 0h2v2h-2zM6 13h12v2H6z" fill-rule="evenodd"/></svg>
-        </button>
-      </div>
+      <button class="btn c" id="mic" type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 2h6v12H9zM5 10h2v4h2v2h6v-2h2v-4h2v6h-2v2h-4v2h4v2H7v-2h4v-2H7v-2H5z"/></svg>
+        <span id="mic-t">Dì un film</span>
+      </button>
       <button class="btn y xl" id="via" type="button">Scegli</button>
     </div>
   </section>
@@ -206,11 +206,7 @@ body.finale #vince{display:flex}
   </section>
 </div>
 
-<form id="scrivi" autocomplete="off" hidden>
-  <input id="q" type="text" enterkeyhint="send" placeholder="Titolo, oppure: con Margot Robbie" aria-label="Titolo del film o attore">
-  <button class="btn c" type="submit">Vai</button>
-  <button class="btn q" id="scrivi-x" type="button" aria-label="Chiudi">✕</button>
-</form>
+
 
 <div class="velo" id="velo" hidden>
   <div class="foglio" role="dialog" aria-modal="true" aria-labelledby="f-tit">
@@ -248,6 +244,13 @@ body.finale #vince{display:flex}
 <div id="flash"></div>
 <canvas id="fx"></canvas>
 
+<script>
+window.__errori=[];
+function __mostraErrore(t){try{window.__errori.push(t);var e=document.getElementById("errore");if(!e){e=document.createElement("div");e.id="errore";document.body.appendChild(e)}
+  e.textContent="Errore (mandalo a Claude): "+window.__errori.slice(-2).join(" | ")}catch(x){}}
+window.addEventListener("error",function(e){if(e&&e.message)__mostraErrore(e.message+" @"+(e.lineno||"?"))});
+window.addEventListener("unhandledrejection",function(e){var r=e&&e.reason;__mostraErrore(String(r&&r.message||r))});
+</script>
 <script>
 (function(){
 "use strict";
@@ -366,12 +369,12 @@ function carta(f,tag,extra){
 var appenaNati={};
 function disegnaLista(){
   var g=$("griglia");g.textContent="";
-  if(!films.length){var v=document.createElement("li");v.className="vuoto";v.textContent=SR?"Wishlist vuota. Tocca il microfono e dì un film.":"Wishlist vuota. Tocca il bottone azzurro e scrivi un film.";g.appendChild(v)}
+  if(!films.length){var v=document.createElement("li");v.className="vuoto";v.textContent="Wishlist vuota. Scrivi un film qui sopra"+(SR?", oppure tocca il microfono e dillo.":".");g.appendChild(v)}
   films.forEach(function(f){var li=document.createElement("li");var c=carta(f,"button",appenaNati[f.id]?"nuovo":"");delete appenaNati[f.id];
     c.setAttribute("aria-label",f.title+": opzioni");li.appendChild(c);g.appendChild(li)});
   var n=films.length,d=$("dritta");d.textContent="";
   var b=document.createElement("b");b.textContent=String(n);d.appendChild(b);
-  d.appendChild(document.createTextNode(" in wishlist. Prova anche «con Margot Robbie»."));
+  d.appendChild(document.createTextNode(" in wishlist · v5"));
   $("via").classList.toggle("fermo",n<2);
   $("n-hall").textContent=hall.length?String(hall.length):"";
 }
@@ -397,31 +400,34 @@ var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,ascolta
 function micTesto(t){$("mic-t").textContent=t}
 function fineAscolto(){ascolta=false;rec=null;$("mic").classList.remove("on");micTesto(SR?"Dì un film":"Scrivi un film")}
 function parla(){
-  audio();
-  if(!SR){apriScrivi();return}
+  if(!SR){toast("Qui la dettatura non c'è","scrivi nel campo in alto");apriScrivi();return}
   if(ascolta){try{rec.stop()}catch(e){}return}
-  var preso=false;
+  var preso=false,ultimo="",partito=false;
+  function chiudi(){if(!preso&&ultimo.trim()){preso=true;aggiungi(ultimo)}else if(!preso&&partito){toast("Non ho sentito niente","riprova o scrivi")}
+    fineAscolto();try{if(ac&&suoni&&ac.state==="suspended")ac.resume()}catch(e){}}
   try{
+    try{if(ac&&ac.state==="running")ac.suspend()}catch(e){}
     rec=new SR();rec.lang="it-IT";rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=1;
-    rec.onstart=function(){ascolta=true;$("mic").classList.add("on");micTesto("Ti ascolto…");bip(880,.08,"square",.06)};
-    rec.onresult=function(e){var fin="",prov="";for(var i=0;i<e.results.length;i++){var r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else prov+=r[0].transcript}
-      if(fin.trim()&&!preso){preso=true;aggiungi(fin)}else if(prov)micTesto(prov)};
-    rec.onerror=function(e){preso=true;
-      if(e.error==="not-allowed"||e.error==="service-not-allowed"){toast("Microfono bloccato","usa la tastiera qui accanto")}
-      else if(e.error==="no-speech"){toast("Non ho sentito niente")}
-      else if(e.error!=="aborted"){toast("Dettatura non riuscita","prova con la tastiera")}};
-    rec.onend=function(){fineAscolto()};
+    ascolta=true;$("mic").classList.add("on");micTesto("Ti ascolto…");
+    rec.onstart=function(){partito=true};
+    rec.onresult=function(e){var fin="",tutto="";for(var i=0;i<e.results.length;i++){var r=e.results[i];tutto+=r[0].transcript;if(r.isFinal)fin+=r[0].transcript}
+      ultimo=tutto;if(tutto.trim())micTesto(tutto);
+      if(fin.trim()&&fin.trim()===tutto.trim()&&!preso){preso=true;aggiungi(fin);try{rec.stop()}catch(x){}}};
+    rec.onerror=function(e){
+      if(e.error==="not-allowed"||e.error==="service-not-allowed"){preso=true;toast("Microfono non permesso qui","scrivi nel campo in alto")}
+      else if(e.error==="no-speech"){preso=true;toast("Non ho sentito niente","riprova o scrivi")}
+      else if(e.error!=="aborted"){preso=true;toast("Dettatura non riuscita ("+e.error+")","scrivi nel campo in alto")}};
+    rec.onend=chiudi;
     rec.start();
-  }catch(e){fineAscolto();apriScrivi()}
+    setTimeout(function(){if(ascolta&&!partito){try{rec.abort()}catch(e){}preso=true;chiudi();toast("Il microfono non parte qui","scrivi nel campo in alto")}},4000);
+  }catch(e){preso=true;fineAscolto();toast("Dettatura non disponibile","scrivi nel campo in alto")}
 }
 $("mic").addEventListener("click",parla);
 
 /* tastiera */
-function apriScrivi(){$("scrivi").hidden=false;$("q").focus()}
-function chiudiScrivi(){$("q").blur();$("scrivi").hidden=true}
-$("tast").addEventListener("click",function(){audio();apriScrivi()});
-$("scrivi-x").addEventListener("click",chiudiScrivi);
-$("scrivi").addEventListener("submit",function(e){e.preventDefault();audio();var q=$("q");if(!q.value.trim()){chiudiScrivi();return}aggiungi(q.value);q.value="";if(!$("scrivi").hidden)q.focus()});
+function apriScrivi(){try{$("q").focus()}catch(e){}}
+function chiudiScrivi(){try{$("q").blur()}catch(e){}}
+$("scrivi").addEventListener("submit",function(e){e.preventDefault();var q=$("q"),v=q.value;q.value="";chiudiScrivi();if(!v.trim()){rifiuta($("invia"));return}audio();aggiungi(v)});
 
 /* foglio opzioni */
 var aperto=null;
@@ -604,7 +610,7 @@ async function sgrana(el,img,passi,ms,giu){
     bip(giu?700-i*110:260+i*90,.07,"square",.06);await sleep(ms)}
   if(!giu)c.remove();
 }
-var cv=$("fx"),cx=cv.getContext("2d"),pz=[],raf=0,SC=.5,COL=["#ffd23f","#ff4d8d","#4de2ff","#f3f1ff"];
+var cv=$("fx"),cx=cv.getContext("2d"),pz=[],raf=0,SC=.5,COL=["#ffdd33","#ff4757","#7ce7ff","#ffffff"];
 function tela(){cv.width=Math.ceil(innerWidth*SC);cv.height=Math.ceil(innerHeight*SC);cx.imageSmoothingEnabled=false}
 tela();
 /* La locandina va in ~2400 frammenti con i suoi stessi colori, ridotti a tavolozza da console. */
@@ -664,7 +670,7 @@ function fanfara(){[523.3,523.3,523.3,659.3,784,659.3,784,1046.5].forEach(functi
 carica();fineAscolto();disegnaLista();etichette();
 $("suono").setAttribute("aria-pressed",String(suoni));
 films.forEach(function(f){if(!f.img&&(!f.cands||!f.cands.length))cerca(f)});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"){chiudiFoglio();$("velo-rip").hidden=true;if(!$("scrivi").hidden)chiudiScrivi()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){chiudiFoglio();$("velo-rip").hidden=true}});
 window.__lr={aggiungi:aggiungi,esplodi:esplodi,stato:function(){return {films:films,hall:hall,vivi:vivi.map(function(f){return f.title}),fuori:eliminati.length,busy:busy,pz:pz.length,modo:modo,s:document.body.dataset.s}}};
 })();
 </script>

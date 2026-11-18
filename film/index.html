@@ -90,7 +90,7 @@ h1 i{font-style:normal;color:var(--yellow)}
 #campo{flex:1;min-height:0;position:relative}
 #ring{position:absolute;inset:0;display:grid;justify-content:center;align-content:center;gap:10px}
 #ring .film{transition:opacity .12s,filter .12s}
-#ring.gira .film:not(.mira):not(.sfida){opacity:.3;filter:saturate(.3)}
+#ring.gira .film:not(.mira):not(.sfida):not(.trema){opacity:.3;filter:saturate(.3)}
 #ring .film.mira{z-index:3;transform:scale(1.08)}
 #ring .film.mira .poster{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--pink);animation:cursore .2s steps(2) infinite}
 @keyframes cursore{50%{box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--yellow)}}
@@ -189,7 +189,7 @@ body.finale #vince{display:flex}
     <button class="btn p xl" id="fuori" type="button">Fuori uno</button>
     <div class="riga">
       <button class="mini" id="modo" type="button"></button>
-      <button class="mini" id="auto" type="button" aria-pressed="false">Vai da solo</button>
+      <button class="mini" id="auto" type="button" aria-pressed="false">Auto</button>
       <button class="mini" id="ripesca" type="button">Ripesca</button>
       <button class="mini" id="suono" type="button" aria-pressed="true">Suoni</button>
       <button class="mini" id="indietro" type="button">Esci</button>
@@ -460,7 +460,7 @@ $("apri-hall").addEventListener("click",function(){disegnaHall();schermo("hall")
 $("chiudi-hall").addEventListener("click",function(){schermo("lista");disegnaLista()});
 
 /* ---------- arena ---------- */
-function schermo(s){document.body.dataset.s=s}
+function schermo(s){document.body.dataset.s=s;pz=[]}
 function rifiuta(b){b.classList.remove("no");void b.offsetWidth;b.classList.add("no");bip(150,.15,"square",.07)}
 $("via").addEventListener("click",function(){audio();if(films.length<2){rifiuta(this);toast("Servono almeno 2 film");return}banco=null;entraArena()});
 function montaRing(){

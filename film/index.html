@@ -229,21 +229,31 @@ function wiki(lang,q){
     var p=(d.query&&d.query.pages)||{};
     return Object.keys(p).map(function(k){return p[k]}).sort(function(a,b){return a.index-b.index}).map(function(x){
       var th=x.thumbnail,ok=th&&th.height>=th.width*1.25,src=ok?th.source:"";
-      return {t:x.title.replace(/\s*\(.*?\)\s*/g," ").trim(),img:src,k:src&&/\/wikipedia\/(en|it)\//.test(src)?0:2}})})}
+      return {raw:x.title,t:x.title.replace(/\s*\(.*?\)\s*/g," ").trim(),img:src,k:src&&/\/wikipedia\/(en|it)\//.test(src)?0:2}})})}
 function lev(a,b){var m=a.length,n=b.length,r=[],i,j;for(j=0;j<=n;j++)r[j]=j;
   for(i=1;i<=m;i++){var prev=r[0];r[0]=i;for(j=1;j<=n;j++){var t=r[j];r[j]=Math.min(r[j]+1,r[j-1]+1,prev+(a.charAt(i-1)===b.charAt(j-1)?0:1));prev=t}}return r[n]}
 function sim(a,b){a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;if(a.indexOf(b)===0||b.indexOf(a)===0)return .85;return 1-lev(a,b)/Math.max(a.length,b.length)}
+function enDa(itRaw){
+  return jsonp("https://it.wikipedia.org/w/api.php?action=query&format=json&redirects=1&prop=langlinks&lllang=en&titles="+encodeURIComponent(itRaw)).then(function(d){
+    var p=(d.query&&d.query.pages)||{},k=Object.keys(p)[0],ll=k&&p[k].langlinks&&p[k].langlinks[0],en=ll&&(ll["*"]||ll.title);
+    if(!en)return [];
+    return jsonp("https://en.wikipedia.org/w/api.php?action=query&format=json&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any&titles="+encodeURIComponent(en)).then(function(e){
+      var q=(e.query&&e.query.pages)||{},kk=Object.keys(q)[0],th=kk&&q[kk].thumbnail;
+      return th&&th.height>=th.width*1.2?[{t:"",img:th.source,k:-1}]:[]})})}
 function cerca(f){
   f.loading=true;
   var vuoto=function(){return []};
   return Promise.all([wiki("en",f.q).catch(vuoto),wiki("it",f.q).catch(vuoto),itunes(f.q).catch(vuoto)]).then(function(r){
-    var nome="";[r[1],r[2],r[0]].some(function(l){return l.some(function(x){if(sim(x.t,f.q)>=.72){nome=x.t;return true}})});
-    f.title=nome||bello(f.q);
-    var visti={},c=[];r[0].concat(r[1],r[2]).forEach(function(x,i){if(x.img&&!visti[x.img]){visti[x.img]=1;x.o=i;c.push(x)}});
-    c.sort(function(a,b){return a.k-b.k||a.o-b.o});
-    f.cands=c.slice(0,6).map(function(x){return {img:x.img}});f.ci=0;f.loading=false;
-    applica(f);salva();if(document.body.dataset.s==="lista")disegnaLista();
-  })}
+    var best=null,bs=.72;[r[1],r[2],r[0]].forEach(function(l,li){l.forEach(function(x){var s=sim(x.t,f.q);if(s>bs){bs=s;best=x;best.it=li===0}})});
+    f.title=best?best.t:bello(f.q);
+    var itp=best&&best.it?best:null;
+    if(!itp)r[1].forEach(function(x){if(!itp&&sim(x.t,f.q)>=.72)itp=x});
+    return (itp?enDa(itp.raw).catch(vuoto):Promise.resolve([])).then(function(extra){
+      var visti={},c=[];extra.concat(r[0],r[1],r[2]).forEach(function(x,i){if(x.img&&!visti[x.img]){visti[x.img]=1;x.o=i;x.s=x.k<0?1:Math.max(sim(x.t,f.q),sim(x.t,f.title));c.push(x)}});
+      c.sort(function(a,b){return a.k-b.k||b.s-a.s||a.o-b.o});
+      f.cands=c.slice(0,6).map(function(x){return {img:x.img}});f.ci=0;f.loading=false;
+      applica(f);salva();if(document.body.dataset.s==="lista")disegnaLista();
+    })})}
 function applica(f){var c=f.cands&&f.cands[f.ci];f.img=c?c.img:""}
 
 /* ---------- locandina ---------- */
